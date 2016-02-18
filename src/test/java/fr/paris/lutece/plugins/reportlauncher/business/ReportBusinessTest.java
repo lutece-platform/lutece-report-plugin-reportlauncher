@@ -48,35 +48,39 @@ public class ReportBusinessTest extends LuteceTestCase
     public void testBusiness(  )
     {
         // Initialize an object
-    /*    Report report = new Report(  );
-        report.setName( NAME1 );
-        report.setFragment( FRAGMENT1 );
-        report.setParameter( PARAMETER1 );
-	*/
+        /*    Report report = new Report(  );
+            report.setName( NAME1 );
+            report.setFragment( FRAGMENT1 );
+            report.setParameter( PARAMETER1 );
+            */
+
         // Create test
-      /*  ReportHome.create( report );
+        /*  ReportHome.create( report );
 
-        Report reportStored = ReportHome.findByPrimaryKey( report.getId(  ) );
-        assertEquals( reportStored.getName(  ), report.getName(  ) );
-        assertEquals( reportStored.getFragment(  ), report.getFragment(  ) );
-        assertEquals( reportStored.getParameter(  ), report.getParameter(  ) );
-	*/
+          Report reportStored = ReportHome.findByPrimaryKey( report.getId(  ) );
+          assertEquals( reportStored.getName(  ), report.getName(  ) );
+          assertEquals( reportStored.getFragment(  ), report.getFragment(  ) );
+          assertEquals( reportStored.getParameter(  ), report.getParameter(  ) );
+          */
+
         // Update test
-      /*  report.setName( NAME2 );
-        report.setFragment( FRAGMENT2 );
-        report.setParameter( PARAMETER2 );
-        ReportHome.update( report );
-        reportStored = ReportHome.findByPrimaryKey( report.getId(  ) );
-        assertEquals( reportStored.getName(  ), report.getName(  ) );
-        assertEquals( reportStored.getFragment(  ), report.getFragment(  ) );
-        assertEquals( reportStored.getParameter(  ), report.getParameter(  ) );
-		*/
-        // List test
-      /*  ReportHome.getReportsList(  );
+        /*  report.setName( NAME2 );
+          report.setFragment( FRAGMENT2 );
+          report.setParameter( PARAMETER2 );
+          ReportHome.update( report );
+          reportStored = ReportHome.findByPrimaryKey( report.getId(  ) );
+          assertEquals( reportStored.getName(  ), report.getName(  ) );
+          assertEquals( reportStored.getFragment(  ), report.getFragment(  ) );
+          assertEquals( reportStored.getParameter(  ), report.getParameter(  ) );
+                  */
 
-        // Delete test
-        ReportHome.remove( report.getId(  ) );
-        reportStored = ReportHome.findByPrimaryKey( report.getId(  ) );
-        assertNull( reportStored );
-    */}
+        // List test
+        /*  ReportHome.getReportsList(  );
+
+          // Delete test
+          ReportHome.remove( report.getId(  ) );
+          reportStored = ReportHome.findByPrimaryKey( report.getId(  ) );
+          assertNull( reportStored );
+        */
+    }
 }

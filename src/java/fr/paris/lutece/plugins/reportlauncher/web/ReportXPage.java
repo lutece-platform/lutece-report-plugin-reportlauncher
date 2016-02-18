@@ -53,7 +53,6 @@ public class ReportXPage extends MVCApplication
 {
     // Templates
     private static final String TEMPLATE_MANAGE_REPORTS = "/skin/plugins/reportlauncher/manage_reports.html";
- 
 
     // Markers
     private static final String MARK_REPORT_LIST = "report_list";
@@ -62,19 +61,15 @@ public class ReportXPage extends MVCApplication
     // Views
     private static final String VIEW_MANAGE_REPORTS = "manageReports";
     private ReportLauncherService _pageService;
-    
 
     @View( value = VIEW_MANAGE_REPORTS, defaultView = true )
     public XPage getManageReports( HttpServletRequest request )
     {
-       
         Map<String, Object> model = getModel(  );
         model.put( MARK_REPORT_LIST, ReportHome.getReportsList(  ) );
         _pageService = ( _pageService != null ) ? _pageService : ReportLauncherService.instance(  );
-        model.put(PARAMETER_URL, _pageService.getFOUrl( ));
-        
+        model.put( PARAMETER_URL, _pageService.getFOUrl(  ) );
+
         return getXPage( TEMPLATE_MANAGE_REPORTS, request.getLocale(  ), model );
     }
-
-
 }

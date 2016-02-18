@@ -33,16 +33,17 @@
  */
 package fr.paris.lutece.plugns.reportlauncher.service;
 
-import java.util.List;
-
 import fr.paris.lutece.plugins.reportlauncher.business.dto.PageDTO;
 import fr.paris.lutece.portal.business.user.AdminUser;
 
+import java.util.List;
+
+
 public interface IReportLauncherService
 {
-    public List<PageDTO> getPage(  AdminUser user );
-    
-    public String getBOUrl();
-    
-    public String getFOUrl();
+    public List<PageDTO> getPage( AdminUser user );
+
+    public String getBOUrl(  );
+
+    public String getFOUrl(  );
 }

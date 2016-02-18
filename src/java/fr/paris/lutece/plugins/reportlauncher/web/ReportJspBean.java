@@ -131,8 +131,8 @@ public class ReportJspBean extends ManageReportlauncherJspBean
         List<Report> listReports = (List<Report>) ReportHome.getReportsList(  );
         Map<String, Object> model = getPaginatedListModel( request, MARK_REPORT_LIST, listReports, JSP_MANAGE_REPORTS );
         _pageService = ( _pageService != null ) ? _pageService : ReportLauncherService.instance(  );
-        model.put(PARAMETER_URL, _pageService.getBOUrl( ));
-        
+        model.put( PARAMETER_URL, _pageService.getBOUrl(  ) );
+
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_REPORTS, TEMPLATE_MANAGE_REPORTS, model );
     }
 
@@ -147,10 +147,11 @@ public class ReportJspBean extends ManageReportlauncherJspBean
     {
         _report = ( _report != null ) ? _report : new Report(  );
         _pageService = ( _pageService != null ) ? _pageService : ReportLauncherService.instance(  );
-        
+
         Map<String, Object> model = getModel(  );
         model.put( MARK_REPORT, _report );
-        model.put(MARK_PAGE_LIST, _pageService.getPage( getUser( ) )); 
+        model.put( MARK_PAGE_LIST, _pageService.getPage( getUser(  ) ) );
+
         return getPage( PROPERTY_PAGE_TITLE_CREATE_REPORT, TEMPLATE_CREATE_REPORT, model );
     }
 
@@ -232,8 +233,8 @@ public class ReportJspBean extends ManageReportlauncherJspBean
 
         Map<String, Object> model = getModel(  );
         model.put( MARK_REPORT, _report );
-        model.put(MARK_PAGE_LIST, _pageService.getPage( getUser( ) )); 
-        
+        model.put( MARK_PAGE_LIST, _pageService.getPage( getUser(  ) ) );
+
         return getPage( PROPERTY_PAGE_TITLE_MODIFY_REPORT, TEMPLATE_MODIFY_REPORT, model );
     }
 

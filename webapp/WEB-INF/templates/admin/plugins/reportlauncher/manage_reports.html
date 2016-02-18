@@ -1,0 +1,72 @@
+<#include "managereportlauncher_tabs.html" />
+<@tabs tab="report" />
+
+<@rowBox>
+    <@boxHeader i18nTitleKey="reportlauncher.manage_reports.tableLabel">
+        <@headerButtons>
+
+        
+        <form class="form-inline pull-right" method="post" name="manage_reports" action="jsp/admin/plugins/reportlauncher/ManageReports.jsp">
+            <!-- Add pull-right to class1 -->
+            <@actionButtons button1Name="view_createReport" icon1="icon-plus icon-white" i18nValue1Key="reportlauncher.manage_reports.buttonAdd" />
+        </form>
+        
+    </@headerButtons>
+    </@boxHeader>
+    <@boxBody>    
+    <@messages infos=infos />
+    <@paginationAdmin paginator=paginator combo=1 />
+    
+    <@table>
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <th>#i18n{reportlauncher.manage_reports.columnName}</th>
+            <th>#i18n{reportlauncher.manage_reports.columnFragment}</th>
+            <th>#i18n{reportlauncher.manage_reports.columnNumberParameter}</th>
+            <th>#i18n{portal.util.labelActions}</th>
+        </tr>
+        <@tableHeadBodySeparator />
+            <#list report_list as report >
+        <tr>
+            <input type="hidden" id="id" name="id"/>
+            <td>
+                ${report.name}
+            </td>
+            <td>
+                ${report.page}
+            </td>
+            <td>
+               <#assign size = report.parameter?size> 
+		${size}
+            </td>
+        <td>
+        <#if report.parameter ??>
+        	<#assign parameters= "">
+        	<#list report.parameter as param >
+				<#assign parameters= parameters + "&">
+		        	<#assign parameters= parameters + param.name + "=" + param.value>
+		</#list>
+        	
+	     <a href="${url!}${report.page}${parameters}" class="btn btn-info btn-small" title="#i18n{sqlpage.manage_sqlpages.buttonShow}">
+	               <i class="fa fa-play"></i>
+	     </a>
+   
+         </#if>
+            <a href="jsp/admin/plugins/reportlauncher/ManageReports.jsp?view=modifyReport&id=${report.id}"
+               class="btn btn-primary btn-small" title="#i18n{portal.util.labelModify}">
+                <i class="fa fa-pencil"></i>
+            </a>
+
+            <a href="jsp/admin/plugins/reportlauncher/ManageReports.jsp?action=confirmRemoveReport&id=${report.id}"
+               class="btn btn-danger btn-small" title="#i18n{portal.util.labelDelete}" >
+                <i class="fa fa-trash"></i>
+            </a>
+        </td>
+        </tr>
+        </#list>
+    </@table>
+
+    <@paginationAdmin paginator=paginator />
+
+  </@boxBody>
+</@rowBox>

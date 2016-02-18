@@ -1,0 +1,18 @@
+<legend>Pages </legend>
+<div>
+    <#list report_list as report >
+    
+       <#if report.parameter ??>
+        	<#assign parameters= "">
+        	<#list report.parameter as param >
+				<#assign parameters= parameters + "&">
+		        	<#assign parameters= parameters + param.name + "=" + param.value>
+		    </#list>
+        	
+	     <a href="${url!}${report.page}${parameters}" class="" title="#i18n{sqlpage.manage_sqlpages.buttonShow}">
+	                ${report.name}
+	     </a>
+   
+         </#if>
+       </#list>
+</div>

@@ -1,0 +1,74 @@
+<#include "managereportlauncher_tabs.html" />
+<@tabs tab="report" />
+
+<@rowBoxHeader i18nTitleKey="reportlauncher.modify_report.pageTitle">
+    <form class="form-horizontal" method="post"  action="jsp/admin/plugins/reportlauncher/ManageReports.jsp">
+        <@messages errors=errors />
+        <input type="hidden" id="id" name="id" value="${report.id}"/>
+        
+        <@fieldInputText i18nLabelKey="reportlauncher.modify_report.labelName" inputName="name" mandatory=true value="${report.name}" i18nHelpBlockKey="reportlauncher.modify_report.labelName.help" />
+       <div class="form-group">
+		<label class="col-xs-12 col-sm-3 col-md-3 control-label " for="page">#i18n{reportlauncher.create_report.labelPage} *:</label>
+			<div class="col-xs-12 col-sm-9 col-md-9">
+				<#assign default_value= report.page!"" />
+				<select id="page" name="page" class="form-control">			
+				<option selected="selected" value="" >Veuillez choisir un fragement...</option> 
+				<#list page_list as page>	
+					<#if default_value="${page.value}"> 			
+						<option selected="selected" value="${page.value}" >${page.name}</option>    			    							
+					<#else>
+					   	<option value="${page.value}" >${page.name}</option>
+					   </#if>
+				</#list>		
+				</select>
+				<span class="help-block">#i18n{reportlauncher.create_report.labelPage.help}</span>
+			</div>
+	</div>
+  
+     <div class="form-group">
+		<div class="row">
+			<div class="col-md-3 control-label">
+				<labele class="" for="parameter">Parametre :</lable>
+			</div>
+			<div class="col-md-9">
+			      <div class="row">
+				<div class="col-md-3 ">
+					<input type="text" id="parameterName" name="parameterName" placeholder="Insérer le nom du parametre" size="30" value="" class="form-control"/>
+				</div>
+				<div class="col-md-3">
+		 			<input type="text" name="parameterValue" value="" placeholder="Insérer la valeur du parametre" size="30" class="form-control"/>
+				</div>
+				<span class="col-md-3">
+					<button type="submit" class="btn btn-primary " title="Ajouter" name="action_modifyParameter">
+						<i class="fa fa-plus"></i>
+					</button>
+				</span>
+				
+				</div>
+				<#if report.parameter?? && report.parameter?has_content>
+				<div class="panel panel-default">
+				<div class="panel-heading">Parametres</div>
+  				<div class="panel-body">
+				
+				<#list report.parameter as param >
+				 <div class="form-group">
+					<span><strong>${param.name}</strong>:&nbsp;&nbsp;&nbsp;${param.value}
+					 <a href="jsp/admin/plugins/reportlauncher/ManageReports.jsp?action=confirmRemoveParameter&idParam=${param.id}&id=${report.id}"
+               					class="btn btn-danger btn-small" title="#i18n{portal.util.labelDelete}" >
+              				  <i class="fa fa-trash"></i>
+          				 </a>
+					</span>
+				</div>					
+				</#list>
+					
+				</div>
+				</div>
+				
+				</#if>
+			</div>
+		</div>
+	
+	</div>
+    <@actionButtons button1Name="action_modifyReport" button2Name="view_manageReports"/>
+    </form>
+</@rowBoxHeader>

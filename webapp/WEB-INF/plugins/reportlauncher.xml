@@ -42,4 +42,13 @@
     <!-- Portlet parameters -->
     <portlets>
    </portlets>
+       <!-- Dashboard components -->
+    <dashboard-components>
+        <dashboard-component>
+            <dashboard-component-name>REPORT_VIEW</dashboard-component-name>
+            <dashboard-component-class>fr.paris.lutece.plugins.reportlauncher.web.ReportDashboardComponent</dashboard-component-class>
+            <dashboard-feature-right>REPORTLAUNCHER_MANAGEMENT</dashboard-feature-right>
+        </dashboard-component>
+    </dashboard-components>
+   
 </plug-in>

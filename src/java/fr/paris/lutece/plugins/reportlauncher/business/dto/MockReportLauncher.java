@@ -31,90 +31,49 @@
  *
  * License 1.0
  */
-package fr.paris.lutece.plugns.reportlauncher.service;
+package fr.paris.lutece.plugins.reportlauncher.business.dto;
 
 import fr.paris.lutece.plugins.reportlauncher.business.dto.PageDTO;
+import fr.paris.lutece.plugns.reportlauncher.service.IReportLauncherService;
 import fr.paris.lutece.portal.business.user.AdminUser;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
-public class ReportLauncherService
+public class MockReportLauncher implements IReportLauncherService
 {
-    private static final String BEAN_PAGE_SERVICE = "reportlauncher.pageService";
-    private static ReportLauncherService _singleton;
-    private static IReportLauncherService _pageService;
+    public static final String URL_BO_SQLPAGE = "#";
+    public static final String URL_FO_SQLPAGE = " ";
 
-    /** private constructor */
-    private ReportLauncherService(  )
-    {
-    }
-
-    /**
-     * Returns the unique instance
-     * @return The unique instance
-     */
-    public static ReportLauncherService instance(  )
-    {
-        if ( _singleton == null )
-        {
-            _singleton = new ReportLauncherService(  );
-            _pageService = SpringContextService.getBean( BEAN_PAGE_SERVICE );
-        }
-
-        return _singleton;
-    }
-
-    /**
-     * Returns the PageDTO pages
-     */
+    @Override
     public List<PageDTO> getPage( AdminUser user )
     {
-    	if (_pageService != null ){
-    	
-            return _pageService.getPage( user );
-            
-    	}else{
-    		
-    		return null;
-    	
-    	}
+        List<PageDTO> listPageDTO = new ArrayList<PageDTO>(  );
+
+     
+        PageDTO pagedto = new PageDTO(  );
+        pagedto.setName( "Report Mock 1" );
+        pagedto.setValue( "Value Mock 1" );
+        listPageDTO.add( pagedto );
+      
+        pagedto.setName( "Report Mock 2" );
+        pagedto.setValue( "Value Mock 2" );
+        listPageDTO.add( pagedto );
+
+
+        return listPageDTO;
     }
 
-    /**
-     * Returns Back URL
-     * @return Back url
-     */
+    @Override
     public String getBOUrl(  )
     {
-    	if (_pageService != null ){
-        	
-    		return _pageService.getBOUrl(  );
-            
-    	}else{
-    		
-    		return null;
-    	
-    	}
-        
+        return URL_BO_SQLPAGE;
     }
 
-    /**
-    * Returns Front URL
-    * @return Front url
-    */
+    @Override
     public String getFOUrl(  )
     {
-       if (_pageService != null ){
-        	
-    	   return _pageService.getFOUrl(  );
-            
-    	}else{
-    		
-    		return null;
-    	
-    	}
-        
+        return URL_FO_SQLPAGE;
     }
 }

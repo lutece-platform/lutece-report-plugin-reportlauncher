@@ -10,6 +10,8 @@
     
     <!-- PAGE SERVICE -->
     
-  <!--  <bean id="reportlauncher.pageService" class="fr.paris.lutece.plugins.sqlpage.service.SQLReportLauncher"/>  -->
+     <!-- <bean id="reportlauncher.pageService" class="fr.paris.lutece.plugins.sqlpage.service.SQLReportLauncher"/> -->
+    
+     <bean id="reportlauncher.pageService" class="fr.paris.lutece.plugins.reportlauncher.business.dto.MockReportLauncher"/>
     
 </beans>

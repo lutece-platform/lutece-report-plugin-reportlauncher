@@ -51,16 +51,14 @@ public class MockReportLauncher implements IReportLauncherService
     {
         List<PageDTO> listPageDTO = new ArrayList<PageDTO>(  );
 
-     
         PageDTO pagedto = new PageDTO(  );
         pagedto.setName( "Report Mock 1" );
         pagedto.setValue( "Value Mock 1" );
         listPageDTO.add( pagedto );
-      
+
         pagedto.setName( "Report Mock 2" );
         pagedto.setValue( "Value Mock 2" );
         listPageDTO.add( pagedto );
-
 
         return listPageDTO;
     }

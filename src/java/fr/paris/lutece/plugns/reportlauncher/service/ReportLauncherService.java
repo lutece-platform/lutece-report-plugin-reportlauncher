@@ -71,15 +71,14 @@ public class ReportLauncherService
      */
     public List<PageDTO> getPage( AdminUser user )
     {
-    	if (_pageService != null ){
-    	
+        if ( _pageService != null )
+        {
             return _pageService.getPage( user );
-            
-    	}else{
-    		
-    		return null;
-    	
-    	}
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**
@@ -88,16 +87,14 @@ public class ReportLauncherService
      */
     public String getBOUrl(  )
     {
-    	if (_pageService != null ){
-        	
-    		return _pageService.getBOUrl(  );
-            
-    	}else{
-    		
-    		return null;
-    	
-    	}
-        
+        if ( _pageService != null )
+        {
+            return _pageService.getBOUrl(  );
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**
@@ -106,15 +103,13 @@ public class ReportLauncherService
     */
     public String getFOUrl(  )
     {
-       if (_pageService != null ){
-        	
-    	   return _pageService.getFOUrl(  );
-            
-    	}else{
-    		
-    		return null;
-    	
-    	}
-        
+        if ( _pageService != null )
+        {
+            return _pageService.getFOUrl(  );
+        }
+        else
+        {
+            return null;
+        }
     }
 }

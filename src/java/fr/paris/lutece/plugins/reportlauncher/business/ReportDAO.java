@@ -36,6 +36,8 @@ package fr.paris.lutece.plugins.reportlauncher.business;
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.util.sql.DAOUtil;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -43,6 +45,7 @@ import java.util.Collection;
 /**
  * This class provides Data Access methods for Report objects
  */
+@ApplicationScoped
 public final class ReportDAO implements IReportDAO
 {
     // Constants
@@ -61,17 +64,17 @@ public final class ReportDAO implements IReportDAO
      */
     public int newPrimaryKey( Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin );
-        daoUtil.executeQuery(  );
-
         int nKey = 1;
 
-        if ( daoUtil.next(  ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_NEW_PK, plugin ) )
         {
-            nKey = daoUtil.getInt( 1 ) + 1;
-        }
+            daoUtil.executeQuery( );
 
-        daoUtil.free(  );
+            if ( daoUtil.next( ) )
+            {
+                nKey = daoUtil.getInt( 1 ) + 1;
+            }
+        }
 
         return nKey;
     }
@@ -82,16 +85,15 @@ public final class ReportDAO implements IReportDAO
     @Override
     public Report insert( Report report, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin );
-
         report.setId( newPrimaryKey( plugin ) );
 
-        daoUtil.setInt( 1, report.getId(  ) );
-        daoUtil.setString( 2, report.getName(  ) );
-        daoUtil.setString( 3, report.getPage(  ) );
-
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_INSERT, plugin ) )
+        {
+            daoUtil.setInt( 1, report.getId( ) );
+            daoUtil.setString( 2, report.getName( ) );
+            daoUtil.setString( 3, report.getPage( ) );
+            daoUtil.executeUpdate( );
+        }
 
         return report;
     }
@@ -102,21 +104,21 @@ public final class ReportDAO implements IReportDAO
     @Override
     public Report load( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeQuery(  );
-
         Report report = null;
 
-        if ( daoUtil.next(  ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECT, plugin ) )
         {
-            report = new Report(  );
-            report.setId( daoUtil.getInt( 1 ) );
-            report.setName( daoUtil.getString( 2 ) );
-            report.setPage( daoUtil.getString( 3 ) );
-        }
+            daoUtil.setInt( 1, nKey );
+            daoUtil.executeQuery( );
 
-        daoUtil.free(  );
+            if ( daoUtil.next( ) )
+            {
+                report = new Report( );
+                report.setId( daoUtil.getInt( 1 ) );
+                report.setName( daoUtil.getString( 2 ) );
+                report.setPage( daoUtil.getString( 3 ) );
+            }
+        }
 
         return report;
     }
@@ -127,10 +129,11 @@ public final class ReportDAO implements IReportDAO
     @Override
     public void delete( int nKey, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin );
-        daoUtil.setInt( 1, nKey );
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_DELETE, plugin ) )
+        {
+            daoUtil.setInt( 1, nKey );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -139,15 +142,14 @@ public final class ReportDAO implements IReportDAO
     @Override
     public void store( Report report, Plugin plugin )
     {
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin );
-
-        daoUtil.setInt( 1, report.getId(  ) );
-        daoUtil.setString( 2, report.getName(  ) );
-        daoUtil.setString( 3, report.getPage(  ) );
-        daoUtil.setInt( 4, report.getId(  ) );
-
-        daoUtil.executeUpdate(  );
-        daoUtil.free(  );
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_UPDATE, plugin ) )
+        {
+            daoUtil.setInt( 1, report.getId( ) );
+            daoUtil.setString( 2, report.getName( ) );
+            daoUtil.setString( 3, report.getPage( ) );
+            daoUtil.setInt( 4, report.getId( ) );
+            daoUtil.executeUpdate( );
+        }
     }
 
     /**
@@ -156,22 +158,21 @@ public final class ReportDAO implements IReportDAO
     @Override
     public Collection<Report> selectReportsList( Plugin plugin )
     {
-        Collection<Report> reportList = new ArrayList<Report>(  );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin );
-        daoUtil.executeQuery(  );
+        Collection<Report> reportList = new ArrayList<>( );
 
-        while ( daoUtil.next(  ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL, plugin ) )
         {
-            Report report = new Report(  );
+            daoUtil.executeQuery( );
 
-            report.setId( daoUtil.getInt( 1 ) );
-            report.setName( daoUtil.getString( 2 ) );
-            report.setPage( daoUtil.getString( 3 ) );
-
-            reportList.add( report );
+            while ( daoUtil.next( ) )
+            {
+                Report report = new Report( );
+                report.setId( daoUtil.getInt( 1 ) );
+                report.setName( daoUtil.getString( 2 ) );
+                report.setPage( daoUtil.getString( 3 ) );
+                reportList.add( report );
+            }
         }
-
-        daoUtil.free(  );
 
         return reportList;
     }
@@ -182,16 +183,17 @@ public final class ReportDAO implements IReportDAO
     @Override
     public Collection<Integer> selectIdReportsList( Plugin plugin )
     {
-        Collection<Integer> reportList = new ArrayList<Integer>(  );
-        DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin );
-        daoUtil.executeQuery(  );
+        Collection<Integer> reportList = new ArrayList<>( );
 
-        while ( daoUtil.next(  ) )
+        try ( DAOUtil daoUtil = new DAOUtil( SQL_QUERY_SELECTALL_ID, plugin ) )
         {
-            reportList.add( daoUtil.getInt( 1 ) );
-        }
+            daoUtil.executeQuery( );
 
-        daoUtil.free(  );
+            while ( daoUtil.next( ) )
+            {
+                reportList.add( daoUtil.getInt( 1 ) );
+            }
+        }
 
         return reportList;
     }

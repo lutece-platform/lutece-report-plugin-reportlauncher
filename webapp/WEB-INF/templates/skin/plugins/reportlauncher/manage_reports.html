@@ -1,18 +1,24 @@
-<legend>Pages </legend>
-<div>
-    <#list report_list as report >
-    
-       <#if report.parameter ??>
-        	<#assign parameters= "">
-        	<#list report.parameter as param >
-				<#assign parameters= parameters + "&">
-		        	<#assign parameters= parameters + param.name + "=" + param.value>
-		    </#list>
-        	
-	     <a href="${url!}${report.page}${parameters}" class="" title="#i18n{sqlpage.manage_sqlpages.buttonShow}">
-	                ${report.name}
-	     </a>
-   
-         </#if>
-       </#list>
-</div>
+<@cTpl>
+<@cContainer>
+    <@cRow>
+        <@cCol>
+            <@cTitle level=2>#i18n{reportlauncher.xpage.report.listTitle}</@cTitle>
+            <#if report_list?has_content>
+            <@chList class='list-unstyled'>
+            <#list report_list as report>
+                <#assign parameters = "">
+                <#list report.parameter![] as param>
+                    <#assign parameters = parameters + "&" + param.name?url('UTF-8') + "=" + param.value?url('UTF-8')>
+                </#list>
+                <@chItem>
+                    <@cLink href='${url!}${report.page!}${parameters}' label=report.name! title='#i18n{reportlauncher.manage_reports.buttonShow} ${report.name!}' />
+                </@chItem>
+            </#list>
+            </@chList>
+            <#else>
+            <@cAlert type='info' title='#i18n{reportlauncher.manage_reports.noReport}' />
+            </#if>
+        </@cCol>
+    </@cRow>
+</@cContainer>
+</@cTpl>

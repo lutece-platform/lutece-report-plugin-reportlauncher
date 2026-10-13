@@ -1,72 +1,39 @@
 <#include "managereportlauncher_tabs.html" />
-<@tabs tab="report" />
-
-<@rowBox>
-    <@boxHeader i18nTitleKey="reportlauncher.manage_reports.tableLabel">
-        <@headerButtons>
-
-        
-        <form class="form-inline pull-right" method="post" name="manage_reports" action="jsp/admin/plugins/reportlauncher/ManageReports.jsp">
-            <!-- Add pull-right to class1 -->
-            <@actionButtons button1Name="view_createReport" icon1="icon-plus icon-white" i18nValue1Key="reportlauncher.manage_reports.buttonAdd" />
-        </form>
-        
-    </@headerButtons>
-    </@boxHeader>
-    <@boxBody>    
-    <@messages infos=infos />
-    <@paginationAdmin paginator=paginator combo=1 />
-    
-    <@table>
-        <tr>
-            <input type="hidden" id="id" name="id"/>
-            <th>#i18n{reportlauncher.manage_reports.columnName}</th>
-            <th>#i18n{reportlauncher.manage_reports.columnFragment}</th>
-            <th>#i18n{reportlauncher.manage_reports.columnNumberParameter}</th>
-            <th>#i18n{portal.util.labelActions}</th>
-        </tr>
-        <@tableHeadBodySeparator />
-            <#list report_list as report >
-        <tr>
-            <input type="hidden" id="id" name="id"/>
-            <td>
-                ${report.name}
-            </td>
-            <td>
-                ${report.page}
-            </td>
-            <td>
-               <#assign size = report.parameter?size> 
-		${size}
-            </td>
-        <td>
-        <#if report.parameter ??>
-        	<#assign parameters= "">
-        	<#list report.parameter as param >
-				<#assign parameters= parameters + "&">
-		        	<#assign parameters= parameters + param.name + "=" + param.value>
-		</#list>
-        	
-	     <a href="${url!}${report.page}${parameters}" class="btn btn-info btn-small" title="#i18n{sqlpage.manage_sqlpages.buttonShow}">
-	               <i class="fa fa-play"></i>
-	     </a>
-   
-         </#if>
-            <a href="jsp/admin/plugins/reportlauncher/ManageReports.jsp?view=modifyReport&id=${report.id}"
-               class="btn btn-primary btn-small" title="#i18n{portal.util.labelModify}">
-                <i class="fa fa-pencil"></i>
-            </a>
-
-            <a href="jsp/admin/plugins/reportlauncher/ManageReports.jsp?action=confirmRemoveReport&id=${report.id}"
-               class="btn btn-danger btn-small" title="#i18n{portal.util.labelDelete}" >
-                <i class="fa fa-trash"></i>
-            </a>
-        </td>
-        </tr>
-        </#list>
-    </@table>
-
-    <@paginationAdmin paginator=paginator />
-
-  </@boxBody>
-</@rowBox>
+<@pageContainer>
+    <@pageColumn>
+        <@pageHeader title='#i18n{reportlauncher.manage_reports.tableLabel}'>
+            <@aButton href='jsp/admin/plugins/reportlauncher/ManageReports.jsp?view=createReport' buttonIcon='plus' title='#i18n{reportlauncher.manage_reports.buttonAdd}' color='primary' />
+        </@pageHeader>
+        <@tabs tab="report" />
+        <@messages infos=infos![] errors=errors![] warnings=warnings![] />
+        <#if report_list?has_content>
+            <@manageFeature>
+                <#list report_list as report>
+                <#assign parameters = "">
+                <#list report.parameter![] as param>
+                    <#assign parameters = parameters + "&" + param.name?url('UTF-8') + "=" + param.value?url('UTF-8')>
+                </#list>
+                <@manageFeatureItem>
+                    <@manageFeatureItemColumn auto=true flex=false>
+                        <@p class='fw-bold mb-0'>${report.name!}</@p>
+                        <@p class='text-secondary mb-0'>#i18n{reportlauncher.manage_reports.columnPage} : ${report.page!}</@p>
+                    </@manageFeatureItemColumn>
+                    <@manageFeatureItemColumn auto=true flex=false>
+                        <@p class='mb-0'>#i18n{reportlauncher.manage_reports.columnNumberParameter} : ${(report.parameter![])?size}</@p>
+                    </@manageFeatureItemColumn>
+                    <@manageFeatureItemColumn align='end'>
+                        <@aButton href='${url!}${report.page!}${parameters}' buttonIcon='player-play' title='#i18n{reportlauncher.manage_reports.buttonShow}' color='info' hideTitle=['all'] />
+                        <@aButton href='jsp/admin/plugins/reportlauncher/ManageReports.jsp?view=modifyReport&amp;id=${report.id}' buttonIcon='edit' title='#i18n{portal.util.labelModify}' color='primary' hideTitle=['all'] />
+                        <@aButton href='jsp/admin/plugins/reportlauncher/ManageReports.jsp?view=confirmRemoveReport&amp;id=${report.id}' buttonIcon='trash' title='#i18n{portal.util.labelDelete}' color='danger' hideTitle=['all'] />
+                    </@manageFeatureItemColumn>
+                </@manageFeatureItem>
+                </#list>
+            </@manageFeature>
+            <@paginationAdmin paginator=paginator combo=1 />
+        <#else>
+            <@card>
+                <@empty title='#i18n{reportlauncher.manage_reports.noReport}' iconName='report-off' actionTitle='#i18n{reportlauncher.manage_reports.buttonAdd}' actionUrl='jsp/admin/plugins/reportlauncher/ManageReports.jsp?view=createReport' />
+            </@card>
+        </#if>
+    </@pageColumn>
+</@pageContainer>

@@ -1,0 +1,17 @@
+<#macro pageSelect current>
+<@select name='page' id='page' mandatory=true>
+    <@option label='#i18n{reportlauncher.create_report.labelChoosePage}' value='' selected=(current='') />
+    <#list page_list![] as page>
+    <@option label='${page.name!}' value='${page.value!}' selected=(current=page.value!'') />
+    </#list>
+</@select>
+</#macro>
+<#macro parameterFields actionName>
+<@formGroup labelFor='parameterName' labelKey='#i18n{reportlauncher.create_report.labelParameter}' helpKey='#i18n{reportlauncher.create_report.labelParameter.help}' rows=2>
+    <@inputGroup>
+        <@input type='text' name='parameterName' id='parameterName' placeHolder='#i18n{reportlauncher.create_report.placeholderParameterName}' maxlength=50 title='#i18n{reportlauncher.create_report.placeholderParameterName}' />
+        <@input type='text' name='parameterValue' id='parameterValue' placeHolder='#i18n{reportlauncher.create_report.placeholderParameterValue}' maxlength=50 title='#i18n{reportlauncher.create_report.placeholderParameterValue}' />
+        <@button type='submit' name=actionName buttonIcon='plus' title='#i18n{reportlauncher.create_report.buttonAddParameter}' color='primary' hideTitle=['all'] />
+    </@inputGroup>
+</@formGroup>
+</#macro>

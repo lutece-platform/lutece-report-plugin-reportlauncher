@@ -35,9 +35,10 @@ package fr.paris.lutece.plugins.reportlauncher.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
 import fr.paris.lutece.portal.service.util.AppException;
 import fr.paris.lutece.util.sql.TransactionManager;
+
+import jakarta.enterprise.inject.spi.CDI;
 
 import java.util.Collection;
 import java.util.List;
@@ -49,7 +50,7 @@ import java.util.List;
 public final class ReportHome
 {
     // Static variable pointed at the DAO instance
-    private static IReportDAO _dao = SpringContextService.getBean( "reportlauncher.reportDAO" );
+    private static IReportDAO _dao = CDI.current( ).select( IReportDAO.class ).get( );
     private static Plugin _plugin = PluginService.getPlugin( "reportlauncher" );
 
     /**
@@ -64,7 +65,7 @@ public final class ReportHome
      * @param report The instance of the Report which contains the informations to store
      * @return The  instance of report which has been created with its primary key.
      */
-    public static Report create( Report report )
+    public static synchronized Report create( Report report )
     {
         TransactionManager.beginTransaction( _plugin );
 
@@ -94,7 +95,7 @@ public final class ReportHome
      * @param report The instance of the Report which contains the data to store
      * @return The instance of the  report which has been updated
      */
-    public static Report update( Report report )
+    public static synchronized Report update( Report report )
     {
         TransactionManager.beginTransaction( _plugin );
 
@@ -134,7 +135,7 @@ public final class ReportHome
 
     /**
      * Remove the report whose identifier is specified in parameter
-     * @param nKey The report Id
+     * @param report The report
      */
     public static void remove( Report report )
     {
@@ -142,8 +143,8 @@ public final class ReportHome
 
         try
         {
+            ParameterHome.removeByIdReport( report.getId(  ) );
             _dao.delete( report.getId(  ), _plugin );
-            ParameterHome.remove( report.getId(  ) );
 
             TransactionManager.commitTransaction( _plugin );
         }
@@ -165,6 +166,11 @@ public final class ReportHome
     public static Report findByPrimaryKey( int nKey )
     {
         Report report = _dao.load( nKey, _plugin );
+
+        if ( report == null )
+        {
+            return null;
+        }
 
         report.setParameter( (List<Parameter>) ParameterHome.findByIdReport( nKey ) );
 

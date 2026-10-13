@@ -40,327 +40,167 @@ import fr.paris.lutece.plugins.reportlauncher.business.ReportHome;
 import fr.paris.lutece.plugns.reportlauncher.service.ReportLauncherService;
 import fr.paris.lutece.portal.service.message.AdminMessage;
 import fr.paris.lutece.portal.service.message.AdminMessageService;
+import fr.paris.lutece.portal.util.mvc.admin.MVCAdminJspBean;
 import fr.paris.lutece.portal.util.mvc.admin.annotations.Controller;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.Action;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
+import fr.paris.lutece.portal.web.cdi.mvc.Models;
+import fr.paris.lutece.portal.web.util.IPager;
+import fr.paris.lutece.portal.web.util.Pager;
 import fr.paris.lutece.util.url.UrlItem;
+
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 
 /**
  * This class provides the user interface to manage Report features ( manage, create, modify, remove )
  */
-@Controller( controllerJsp = "ManageReports.jsp", controllerPath = "jsp/admin/plugins/reportlauncher/", right = "REPORTLAUNCHER_MANAGEMENT" )
-public class ReportJspBean extends ManageReportlauncherJspBean
+@SessionScoped
+@Named( "reportlauncherReportJspBean" )
+@Controller( controllerJsp = ReportJspBean.CONTROLLER_JSP, controllerPath = ReportJspBean.CONTROLLER_PATH, right = ReportJspBean.RIGHT_MANAGEREPORTLAUNCHER, securityTokenEnabled = true )
+public class ReportJspBean extends MVCAdminJspBean
 {
-    ////////////////////////////////////////////////////////////////////////////
-    // Constants
+    public static final String RIGHT_MANAGEREPORTLAUNCHER = "REPORTLAUNCHER_MANAGEMENT";
+    static final String CONTROLLER_JSP = "ManageReports.jsp";
+    static final String CONTROLLER_PATH = "jsp/admin/plugins/reportlauncher/";
+    private static final long serialVersionUID = 1L;
 
     // templates
     private static final String TEMPLATE_MANAGE_REPORTS = "/admin/plugins/reportlauncher/manage_reports.html";
     private static final String TEMPLATE_CREATE_REPORT = "/admin/plugins/reportlauncher/create_report.html";
     private static final String TEMPLATE_MODIFY_REPORT = "/admin/plugins/reportlauncher/modify_report.html";
 
-    //Message
+    // Messages
     private static final String MESSAGE_CONFIRM_REMOVE_PARAMETER = "reportlauncher.message.confirmRemoveParameter";
+    private static final String MESSAGE_CONFIRM_REMOVE_REPORT = "reportlauncher.message.confirmRemoveReport";
+    private static final String MESSAGE_REPORT_NOT_FOUND = "reportlauncher.message.reportNotFound";
+    private static final String MESSAGE_PARAMETER_NOT_FOUND = "reportlauncher.message.parameterNotFound";
 
     // Parameters
     private static final String PARAMETER_ID_REPORT = "id";
-    private static final String PARAMETER_URL = "url";
-
-    // Properties for page titles
-    private static final String PROPERTY_PAGE_TITLE_MANAGE_REPORTS = "reportlauncher.manage_reports.pageTitle";
-    private static final String PROPERTY_PAGE_TITLE_MODIFY_REPORT = "reportlauncher.modify_report.pageTitle";
-    private static final String PROPERTY_PAGE_TITLE_CREATE_REPORT = "reportlauncher.create_report.pageTitle";
-
-    // Markers
-    private static final String MARK_REPORT_LIST = "report_list";
-    private static final String MARK_REPORT = "report";
-    private static final String MARK_PAGE_LIST = "page_list";
-    private static final String JSP_MANAGE_REPORTS = "jsp/admin/plugins/reportlauncher/ManageReports.jsp";
-
-    //Parameter
     private static final String PARAMETER_NAME = "parameterName";
     private static final String PARAMETER_VALUE = "parameterValue";
     private static final String PARAMETER_ID_PARAMETER = "idParam";
 
     // Properties
-    private static final String MESSAGE_CONFIRM_REMOVE_REPORT = "reportlauncher.message.confirmRemoveReport";
-    private static final String PROPERTY_DEFAULT_LIST_REPORT_PER_PAGE = "reportlauncher.listReports.itemsPerPage";
+    private static final String PROPERTY_PAGE_TITLE_MANAGE_REPORTS = "reportlauncher.manage_reports.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_MODIFY_REPORT = "reportlauncher.modify_report.pageTitle";
+    private static final String PROPERTY_PAGE_TITLE_CREATE_REPORT = "reportlauncher.create_report.pageTitle";
+    private static final String PROPERTY_ITEMS_PER_PAGE = "reportlauncher.listItems.itemsPerPage";
     private static final String VALIDATION_ATTRIBUTES_PREFIX = "reportlauncher.model.entity.report.attribute.";
+
+    // Markers
+    private static final String MARK_REPORT_LIST = "report_list";
+    private static final String MARK_REPORT = "report";
+    private static final String MARK_PAGE_LIST = "page_list";
+    private static final String MARK_URL = "url";
 
     // Views
     private static final String VIEW_MANAGE_REPORTS = "manageReports";
     private static final String VIEW_CREATE_REPORT = "createReport";
     private static final String VIEW_MODIFY_REPORT = "modifyReport";
+    private static final String VIEW_CONFIRM_REMOVE_REPORT = "confirmRemoveReport";
+    private static final String VIEW_CONFIRM_REMOVE_PARAMETER = "confirmRemoveParameter";
 
     // Actions
     private static final String ACTION_CREATE_REPORT = "createReport";
     private static final String ACTION_MODIFY_REPORT = "modifyReport";
     private static final String ACTION_REMOVE_REPORT = "removeReport";
-    private static final String ACTION_CONFIRM_REMOVE_REPORT = "confirmRemoveReport";
     private static final String ACTION_ADD_PARAM = "addParameter";
     private static final String ACTION_MOD_PARAM = "modifyParameter";
     private static final String ACTION_REMOVE_PARAMETER = "removeParameter";
-    private static final String ACTION_CONFIRM_REMOVE_PARAMETER = "confirmRemoveParameter";
 
     // Infos
     private static final String INFO_REPORT_CREATED = "reportlauncher.info.report.created";
     private static final String INFO_REPORT_UPDATED = "reportlauncher.info.report.updated";
     private static final String INFO_REPORT_REMOVED = "reportlauncher.info.report.removed";
 
-    // Session variable to store working values
-    private Report _report;
+    @Inject
     private ReportLauncherService _pageService;
+
+    @Inject
+    @Pager( name = "reportlauncher.reports", listBookmark = MARK_REPORT_LIST, defaultItemsPerPage = PROPERTY_ITEMS_PER_PAGE, baseUrl = CONTROLLER_PATH + CONTROLLER_JSP )
+    private IPager<Report, Report> _pager;
+
+    private Report _report;
 
     /**
      * Build the Manage View
      * @param request The HTTP request
+     * @param model The model
      * @return The page
      */
     @View( value = VIEW_MANAGE_REPORTS, defaultView = true )
-    public String getManageReports( HttpServletRequest request )
+    public String getManageReports( HttpServletRequest request, Models model )
     {
         _report = null;
 
-        List<Report> listReports = (List<Report>) ReportHome.getReportsList(  );
-        Map<String, Object> model = getPaginatedListModel( request, MARK_REPORT_LIST, listReports, JSP_MANAGE_REPORTS );
-        _pageService = ( _pageService != null ) ? _pageService : ReportLauncherService.instance(  );
-        model.put( PARAMETER_URL, _pageService.getBOUrl(  ) );
+        List<Report> listReports = new ArrayList<>( ReportHome.getReportsList( ) );
+        _pager.withListItem( listReports ).populateModels( request, model, getLocale( ) );
+        model.put( MARK_URL, _pageService.getBOUrl( ) );
 
         return getPage( PROPERTY_PAGE_TITLE_MANAGE_REPORTS, TEMPLATE_MANAGE_REPORTS, model );
     }
 
     /**
      * Returns the form to create a report
-     *
-     * @param request The Http request
+     * @param model The model
      * @return the html code of the report form
      */
     @View( VIEW_CREATE_REPORT )
-    public String getCreateReport( HttpServletRequest request )
+    public String getCreateReport( Models model )
     {
-        _report = ( _report != null ) ? _report : new Report(  );
-        _pageService = ( _pageService != null ) ? _pageService : ReportLauncherService.instance(  );
+        _report = ( ( _report != null ) && ( _report.getId( ) == 0 ) ) ? _report : new Report( );
 
-        Map<String, Object> model = getModel(  );
         model.put( MARK_REPORT, _report );
-        model.put( MARK_PAGE_LIST, _pageService.getPage( getUser(  ) ) );
+        model.put( MARK_PAGE_LIST, _pageService.getPage( getUser( ) ) );
 
         return getPage( PROPERTY_PAGE_TITLE_CREATE_REPORT, TEMPLATE_CREATE_REPORT, model );
     }
 
     /**
      * Process the data capture form of a new report
-     *
      * @param request The Http Request
      * @return The Jsp URL of the process result
      */
     @Action( ACTION_CREATE_REPORT )
     public String doCreateReport( HttpServletRequest request )
     {
-        List<Parameter> listParam = new ArrayList<Parameter>(  );
+        _report = ( ( _report != null ) && ( _report.getId( ) == 0 ) ) ? _report : new Report( );
         populate( _report, request );
-        _report.setParameter( listParam );
+        _report.setParameter( new ArrayList<>( ) );
 
-        // Check constraints
         if ( !validateBean( _report, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
             return redirectView( request, VIEW_CREATE_REPORT );
         }
 
         ReportHome.create( _report );
-
-        addInfo( INFO_REPORT_CREATED, getLocale(  ) );
-
-        return redirectView( request, VIEW_MANAGE_REPORTS );
-    }
-
-    /**
-     * Manages the removal form of a report whose identifier is in the http
-     * request
-     *
-     * @param request The Http request
-     * @return the html code to confirm
-     */
-    @Action( ACTION_CONFIRM_REMOVE_REPORT )
-    public String getConfirmRemoveReport( HttpServletRequest request )
-    {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_REPORT ) );
-        UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_REPORT ) );
-        url.addParameter( PARAMETER_ID_REPORT, nId );
-
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_REPORT,
-                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
-
-        return redirect( request, strMessageUrl );
-    }
-
-    /**
-     * Handles the removal form of a report
-     *
-     * @param request The Http request
-     * @return the jsp URL to display the form to manage reports
-     */
-    @Action( ACTION_REMOVE_REPORT )
-    public String doRemoveReport( HttpServletRequest request )
-    {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_REPORT ) );
-        Report report = ReportHome.findByPrimaryKey( nId );
-        ReportHome.remove( report );
-        addInfo( INFO_REPORT_REMOVED, getLocale(  ) );
+        addInfo( INFO_REPORT_CREATED, getLocale( ) );
 
         return redirectView( request, VIEW_MANAGE_REPORTS );
     }
 
     /**
-     * Returns the form to update info about a report
-     *
-     * @param request The Http request
-     * @return The HTML form to update info
-     */
-    @View( VIEW_MODIFY_REPORT )
-    public String getModifyReport( HttpServletRequest request )
-    {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_REPORT ) );
-        _report = ReportHome.findByPrimaryKey( nId );
-        _pageService = ( _pageService != null ) ? _pageService : ReportLauncherService.instance(  );
-
-        Map<String, Object> model = getModel(  );
-        model.put( MARK_REPORT, _report );
-        model.put( MARK_PAGE_LIST, _pageService.getPage( getUser(  ) ) );
-
-        return getPage( PROPERTY_PAGE_TITLE_MODIFY_REPORT, TEMPLATE_MODIFY_REPORT, model );
-    }
-
-    /**
-     * Process the change form of a report
-     *
-     * @param request The Http request
+     * Process the data capture form of a new report with a first parameter
+     * @param request The Http Request
      * @return The Jsp URL of the process result
      */
-    @Action( ACTION_MODIFY_REPORT )
-    public String doModifyReport( HttpServletRequest request )
+    @Action( value = ACTION_ADD_PARAM, securityTokenAction = ACTION_CREATE_REPORT )
+    public String doAddParameter( HttpServletRequest request )
     {
-        List<Parameter> listParam = new ArrayList<Parameter>(  );
+        _report = ( ( _report != null ) && ( _report.getId( ) == 0 ) ) ? _report : new Report( );
         populate( _report, request );
-        _report.setParameter( listParam );
+        _report.setParameter( readParameter( request ) );
 
-        // Check constraints
-        if ( !validateBean( _report, VALIDATION_ATTRIBUTES_PREFIX ) )
-        {
-            return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, _report.getId(  ) );
-        }
-
-        ReportHome.update( _report );
-        addInfo( INFO_REPORT_UPDATED, getLocale(  ) );
-
-        return redirectView( request, VIEW_MANAGE_REPORTS );
-    }
-
-    /**
-     * Handles the removal form of a parameter
-     *
-     * @param request The Http request
-     * @return the jsp URL to display the form to manage parameters
-     */
-    @Action( ACTION_REMOVE_PARAMETER )
-    public String doRemoveParameter( HttpServletRequest request )
-    {
-        int nIdreport = Integer.parseInt( request.getParameter( PARAMETER_ID_REPORT ) );
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_PARAMETER ) );
-        ParameterHome.remove( nId );
-
-        return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, nIdreport );
-
-        //   return redirectView( request, VIEW_MANAGE_PARAMETERS );
-    }
-
-    /**
-     * Manages the removal form of a parameter whose identifier is in the http
-     * request
-     *
-     * @param request The Http request
-     * @return the html code to confirm
-     */
-    @Action( ACTION_CONFIRM_REMOVE_PARAMETER )
-    public String getConfirmRemoveParameter( HttpServletRequest request )
-    {
-        int nId = Integer.parseInt( request.getParameter( PARAMETER_ID_PARAMETER ) );
-        int nIdReport = Integer.parseInt( request.getParameter( PARAMETER_ID_REPORT ) );
-        UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_PARAMETER ) );
-        url.addParameter( PARAMETER_ID_PARAMETER, nId );
-        url.addParameter( PARAMETER_ID_REPORT, nIdReport );
-
-        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_PARAMETER,
-                url.getUrl(  ), AdminMessage.TYPE_CONFIRMATION );
-
-        return redirect( request, strMessageUrl );
-    }
-
-    /**
-     * Returns the form to update info about a parameter
-     * @param request
-     * @return
-     */
-    @Action( ACTION_MOD_PARAM )
-    public String doModifyParamter( HttpServletRequest request )
-    {
-        List<Parameter> listParam = new ArrayList<Parameter>(  );
-        String paramName = request.getParameter( PARAMETER_NAME );
-        String paramValue = request.getParameter( PARAMETER_VALUE );
-        Parameter param = new Parameter(  );
-        populate( _report, request );
-
-        if ( ( paramName != null ) && ( paramValue != null ) && !paramName.isEmpty(  ) && !paramValue.isEmpty(  ) )
-        {
-            param.setName( paramName );
-            param.setValue( paramValue );
-            listParam.add( param );
-        }
-
-        _report.setParameter( listParam );
-
-        // Check constraints
-        if ( !validateBean( _report, VALIDATION_ATTRIBUTES_PREFIX ) )
-        {
-            return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, _report.getId(  ) );
-        }
-
-        ReportHome.update( _report );
-
-        return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, _report.getId(  ) );
-    }
-
-    /**
-     *   Process the data capture form of a new parameter
-     * @param request
-     * @return
-     */
-    @Action( ACTION_ADD_PARAM )
-    public String doAddParamter( HttpServletRequest request )
-    {
-        List<Parameter> listParam = new ArrayList<Parameter>(  );
-        String paramName = request.getParameter( PARAMETER_NAME );
-        String paramValue = request.getParameter( PARAMETER_VALUE );
-        Parameter param = new Parameter(  );
-        populate( _report, request );
-
-        if ( ( paramName != null ) && ( paramValue != null ) && !paramName.isEmpty(  ) && !paramValue.isEmpty(  ) )
-        {
-            param.setName( paramName );
-            param.setValue( paramValue );
-            listParam.add( param );
-        }
-
-        _report.setParameter( listParam );
-
-        // Check constraints
         if ( !validateBean( _report, VALIDATION_ATTRIBUTES_PREFIX ) )
         {
             return redirectView( request, VIEW_CREATE_REPORT );
@@ -368,6 +208,211 @@ public class ReportJspBean extends ManageReportlauncherJspBean
 
         Report report = ReportHome.create( _report );
 
-        return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, report.getId(  ) );
+        return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, report.getId( ) );
+    }
+
+    /**
+     * Manages the removal form of a report whose identifier is in the http request
+     * @param request The Http request
+     * @return the html code to confirm
+     */
+    @View( value = VIEW_CONFIRM_REMOVE_REPORT, securityTokenAction = ACTION_REMOVE_REPORT )
+    public String getConfirmRemoveReport( HttpServletRequest request )
+    {
+        Report report = ReportHome.findByPrimaryKey( NumberUtils.toInt( request.getParameter( PARAMETER_ID_REPORT ), -1 ) );
+
+        if ( report == null )
+        {
+            return redirectReportNotFound( request );
+        }
+
+        UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_REPORT ) );
+        url.addParameter( PARAMETER_ID_REPORT, report.getId( ) );
+
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_REPORT, url.getUrl( ), AdminMessage.TYPE_CONFIRMATION );
+
+        return redirect( request, strMessageUrl );
+    }
+
+    /**
+     * Handles the removal form of a report
+     * @param request The Http request
+     * @return the jsp URL to display the form to manage reports
+     */
+    @Action( ACTION_REMOVE_REPORT )
+    public String doRemoveReport( HttpServletRequest request )
+    {
+        Report report = ReportHome.findByPrimaryKey( NumberUtils.toInt( request.getParameter( PARAMETER_ID_REPORT ), -1 ) );
+
+        if ( report != null )
+        {
+            ReportHome.remove( report );
+            addInfo( INFO_REPORT_REMOVED, getLocale( ) );
+        }
+
+        return redirectView( request, VIEW_MANAGE_REPORTS );
+    }
+
+    /**
+     * Returns the form to update info about a report
+     * @param request The Http request
+     * @param model The model
+     * @return The HTML form to update info
+     */
+    @View( VIEW_MODIFY_REPORT )
+    public String getModifyReport( HttpServletRequest request, Models model )
+    {
+        Report report = ReportHome.findByPrimaryKey( NumberUtils.toInt( request.getParameter( PARAMETER_ID_REPORT ), -1 ) );
+
+        if ( report == null )
+        {
+            return redirectReportNotFound( request );
+        }
+
+        _report = report;
+        model.put( MARK_REPORT, _report );
+        model.put( MARK_PAGE_LIST, _pageService.getPage( getUser( ) ) );
+
+        return getPage( PROPERTY_PAGE_TITLE_MODIFY_REPORT, TEMPLATE_MODIFY_REPORT, model );
+    }
+
+    /**
+     * Process the change form of a report
+     * @param request The Http request
+     * @return The Jsp URL of the process result
+     */
+    @Action( ACTION_MODIFY_REPORT )
+    public String doModifyReport( HttpServletRequest request )
+    {
+        if ( _report == null )
+        {
+            return redirectView( request, VIEW_MANAGE_REPORTS );
+        }
+
+        populateReport( request );
+        _report.setParameter( new ArrayList<>( ) );
+
+        if ( !validateBean( _report, VALIDATION_ATTRIBUTES_PREFIX ) )
+        {
+            return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, _report.getId( ) );
+        }
+
+        ReportHome.update( _report );
+        addInfo( INFO_REPORT_UPDATED, getLocale( ) );
+
+        return redirectView( request, VIEW_MANAGE_REPORTS );
+    }
+
+    /**
+     * Process the change form of a report and adds the parameter typed in the form
+     * @param request The Http request
+     * @return The Jsp URL of the process result
+     */
+    @Action( value = ACTION_MOD_PARAM, securityTokenAction = ACTION_MODIFY_REPORT )
+    public String doModifyParameter( HttpServletRequest request )
+    {
+        if ( _report == null )
+        {
+            return redirectView( request, VIEW_MANAGE_REPORTS );
+        }
+
+        populateReport( request );
+        _report.setParameter( readParameter( request ) );
+
+        if ( !validateBean( _report, VALIDATION_ATTRIBUTES_PREFIX ) )
+        {
+            return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, _report.getId( ) );
+        }
+
+        ReportHome.update( _report );
+
+        return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, _report.getId( ) );
+    }
+
+    /**
+     * Manages the removal form of a parameter whose identifier is in the http request
+     * @param request The Http request
+     * @return the html code to confirm
+     */
+    @View( value = VIEW_CONFIRM_REMOVE_PARAMETER, securityTokenAction = ACTION_REMOVE_PARAMETER )
+    public String getConfirmRemoveParameter( HttpServletRequest request )
+    {
+        int nIdReport = NumberUtils.toInt( request.getParameter( PARAMETER_ID_REPORT ), -1 );
+        int nIdParameter = NumberUtils.toInt( request.getParameter( PARAMETER_ID_PARAMETER ), -1 );
+
+        if ( !ParameterHome.getIdReportParametersList( nIdReport ).contains( nIdParameter ) )
+        {
+            return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_PARAMETER_NOT_FOUND, AdminMessage.TYPE_STOP ) );
+        }
+
+        UrlItem url = new UrlItem( getActionUrl( ACTION_REMOVE_PARAMETER ) );
+        url.addParameter( PARAMETER_ID_PARAMETER, nIdParameter );
+        url.addParameter( PARAMETER_ID_REPORT, nIdReport );
+
+        String strMessageUrl = AdminMessageService.getMessageUrl( request, MESSAGE_CONFIRM_REMOVE_PARAMETER, url.getUrl( ), AdminMessage.TYPE_CONFIRMATION );
+
+        return redirect( request, strMessageUrl );
+    }
+
+    /**
+     * Handles the removal form of a parameter
+     * @param request The Http request
+     * @return the jsp URL to display the form to modify the report
+     */
+    @Action( ACTION_REMOVE_PARAMETER )
+    public String doRemoveParameter( HttpServletRequest request )
+    {
+        int nIdReport = NumberUtils.toInt( request.getParameter( PARAMETER_ID_REPORT ), -1 );
+        int nIdParameter = NumberUtils.toInt( request.getParameter( PARAMETER_ID_PARAMETER ), -1 );
+
+        if ( ParameterHome.getIdReportParametersList( nIdReport ).contains( nIdParameter ) )
+        {
+            ParameterHome.remove( nIdParameter );
+        }
+
+        return redirect( request, VIEW_MODIFY_REPORT, PARAMETER_ID_REPORT, nIdReport );
+    }
+
+    /**
+     * Populates the report being modified from the request, keeping its identifier
+     * @param request The Http request
+     */
+    private void populateReport( HttpServletRequest request )
+    {
+        int nId = _report.getId( );
+        populate( _report, request );
+        _report.setId( nId );
+    }
+
+    /**
+     * Reads the parameter typed in the report form
+     * @param request The Http request
+     * @return a list holding the parameter, empty when its name or its value is missing
+     */
+    private static List<Parameter> readParameter( HttpServletRequest request )
+    {
+        List<Parameter> listParam = new ArrayList<>( );
+        String strName = request.getParameter( PARAMETER_NAME );
+        String strValue = request.getParameter( PARAMETER_VALUE );
+
+        if ( ( strName != null ) && ( strValue != null ) && !strName.isEmpty( ) && !strValue.isEmpty( ) )
+        {
+            Parameter param = new Parameter( );
+            param.setName( strName );
+            param.setValue( strValue );
+            listParam.add( param );
+        }
+
+        return listParam;
+    }
+
+    /**
+     * Redirects to the message telling the report does not exist
+     * @param request The Http request
+     * @return the message URL
+     */
+    private String redirectReportNotFound( HttpServletRequest request )
+    {
+        return redirect( request, AdminMessageService.getMessageUrl( request, MESSAGE_REPORT_NOT_FOUND, AdminMessage.TYPE_STOP ) );
     }
 }

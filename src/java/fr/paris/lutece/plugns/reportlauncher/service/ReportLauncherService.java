@@ -35,50 +35,30 @@ package fr.paris.lutece.plugns.reportlauncher.service;
 
 import fr.paris.lutece.plugins.reportlauncher.business.dto.PageDTO;
 import fr.paris.lutece.portal.business.user.AdminUser;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 import java.util.List;
 
 
+/**
+ * Gives access to the pages a report can launch, through the deployed IReportLauncherService
+ */
+@ApplicationScoped
 public class ReportLauncherService
 {
-    private static final String BEAN_PAGE_SERVICE = "reportlauncher.pageService";
-    private static ReportLauncherService _singleton;
-    private static IReportLauncherService _pageService;
-
-    /** private constructor */
-    private ReportLauncherService(  )
-    {
-    }
+    @Inject
+    private IReportLauncherService _pageService;
 
     /**
-     * Returns the unique instance
-     * @return The unique instance
-     */
-    public static ReportLauncherService instance(  )
-    {
-        if ( _singleton == null )
-        {
-            _singleton = new ReportLauncherService(  );
-            _pageService = SpringContextService.getBean( BEAN_PAGE_SERVICE );
-        }
-
-        return _singleton;
-    }
-
-    /**
-     * Returns the PageDTO pages
+     * Returns the pages a user can choose
+     * @param user The admin user
+     * @return The pages
      */
     public List<PageDTO> getPage( AdminUser user )
     {
-        if ( _pageService != null )
-        {
-            return _pageService.getPage( user );
-        }
-        else
-        {
-            return null;
-        }
+        return _pageService.getPage( user );
     }
 
     /**
@@ -87,29 +67,15 @@ public class ReportLauncherService
      */
     public String getBOUrl(  )
     {
-        if ( _pageService != null )
-        {
-            return _pageService.getBOUrl(  );
-        }
-        else
-        {
-            return null;
-        }
+        return _pageService.getBOUrl(  );
     }
 
     /**
-    * Returns Front URL
-    * @return Front url
-    */
+     * Returns Front URL
+     * @return Front url
+     */
     public String getFOUrl(  )
     {
-        if ( _pageService != null )
-        {
-            return _pageService.getFOUrl(  );
-        }
-        else
-        {
-            return null;
-        }
+        return _pageService.getFOUrl(  );
     }
 }

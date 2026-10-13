@@ -1,44 +1,22 @@
-<div class="box box-primary box-solid">
-  <div class="box-header">
-    <h3 class="box-title">#i18n{reportlauncher.dashboard.reportList}</h3>
-    <div class="box-tools">
-      <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-      <button class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-    </div>
-  </div>
-  <div class="box-body table-responsive no-padding">
-    <table class="table table-striped table-condensed">
- 
-    
-     <tr>
-        <th>#i18n{reportlauncher.dashboard.title}</th>
-        <th>#i18n{reportlauncher.dashboard.action}</th>
-      </tr>
-   
-    <#list report_list as report >
-       <tr>
-       <td>
-	  <span class="label label-primary"><i class="glyphicon glyphicon-stats"></i></span>&nbsp;
-	    ${report.name}
-	  </td>
-        <td>
-
-      <#if report.parameter ??>
-        <#assign parameters= "">
-        <#list report.parameter as param >
-		<#assign parameters= parameters + "&">
-		<#assign parameters= parameters + param.name + "=" + param.value>
-        </#list>
-        <a href="${url!}${report.page}${parameters}" class="btn btn-info btn-small" title="#i18n{sqlpage.manage_sqlpages.buttonShow}">
-	               <i class="fa fa-play"></i>
-	     </a>
-   
-      </#if>
-	  
-	</td>
-     </tr>
-     </#list>
-    
-</table>
-  </div>
-</div>
+<@adminDashboardWidget title='#i18n{reportlauncher.dashboard.reportList}' id='reportlauncher_dashboard' url='jsp/admin/plugins/reportlauncher/ManageReports.jsp'>
+<#if report_list?has_content>
+    <@manageFeature class=''>
+    <#list report_list as report>
+    <#assign parameters = "">
+    <#list report.parameter![] as param>
+        <#assign parameters = parameters + "&" + param.name?url('UTF-8') + "=" + param.value?url('UTF-8')>
+    </#list>
+    <@manageFeatureItem>
+        <@manageFeatureItemColumn auto=true flex=false>
+            <@icon style='chart-bar' class='me-1' /> ${report.name!}
+        </@manageFeatureItemColumn>
+        <@manageFeatureItemColumn align='end'>
+            <@aButton href='${url!}${report.page!}${parameters}' buttonIcon='player-play' title='#i18n{reportlauncher.manage_reports.buttonShow}' color='info' size='sm' hideTitle=['all'] />
+        </@manageFeatureItemColumn>
+    </@manageFeatureItem>
+    </#list>
+    </@manageFeature>
+<#else>
+    <@empty title='#i18n{reportlauncher.manage_reports.noReport}' subtitle=' ' iconName='report-off' />
+</#if>
+</@adminDashboardWidget>

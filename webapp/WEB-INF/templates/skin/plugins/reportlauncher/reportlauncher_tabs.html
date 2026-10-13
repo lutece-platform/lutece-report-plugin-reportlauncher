@@ -1,11 +1,7 @@
 <#macro tabs tab >
-<div>
-    <ul class="nav nav-tabs">
-        <li <#if tab="report">class="active"</#if>>
-            <a href="jsp/site/Portal.jsp?page=report">
-                #i18n{reportlauncher.manage_reports.pageTitle}
-            </a>
-        </li>
-    </ul>
-</div>
+<@chList class='nav nav-tabs'>
+    <@chItem class='nav-item'>
+        <@cLink href='jsp/site/Portal.jsp?page=report' label='#i18n{reportlauncher.manage_reports.pageTitle}' class='nav-link${(tab="report")?then(" active","")}' />
+    </@chItem>
+</@chList>
 </#macro>

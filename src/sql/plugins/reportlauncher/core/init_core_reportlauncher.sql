@@ -1,3 +1,7 @@
+-- liquibase formatted sql
+-- changeset reportlauncher:init_core_reportlauncher.sql
+-- preconditions onFail:MARK_RAN onError:WARN
+-- precondition-sql-check expectedResult:0 SELECT COUNT(*) FROM core_admin_right WHERE id_right = 'REPORTLAUNCHER_MANAGEMENT'
 
 --
 -- Data for table core_admin_right

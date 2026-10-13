@@ -33,6 +33,9 @@
  */
 package fr.paris.lutece.plugins.reportlauncher.business.dto;
 
+/**
+ * A page a report can launch
+ */
 public class PageDTO
 {
     private String _strName;

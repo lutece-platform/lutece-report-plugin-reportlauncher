@@ -33,13 +33,12 @@
  */
 package fr.paris.lutece.plugins.reportlauncher.business;
 
-import org.hibernate.validator.constraints.*;
-
 import java.io.Serializable;
 
 import java.util.List;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 
 /**

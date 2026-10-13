@@ -64,6 +64,13 @@ public interface IParameterDAO
      */
     void delete( int nKey, Plugin plugin );
 
+    /**
+     * Delete the parameters of a report
+     * @param nIdReport The identifier of the report
+     * @param plugin the Plugin
+     */
+    void deleteByIdReport( int nIdReport, Plugin plugin );
+
     ///////////////////////////////////////////////////////////////////////////
     // Finders
 

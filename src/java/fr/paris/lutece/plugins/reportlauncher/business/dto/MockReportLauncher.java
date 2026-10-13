@@ -33,19 +33,27 @@
  */
 package fr.paris.lutece.plugins.reportlauncher.business.dto;
 
-import fr.paris.lutece.plugins.reportlauncher.business.dto.PageDTO;
 import fr.paris.lutece.plugns.reportlauncher.service.IReportLauncherService;
 import fr.paris.lutece.portal.business.user.AdminUser;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Default IReportLauncherService, used when no other implementation is deployed
+ */
+@ApplicationScoped
 public class MockReportLauncher implements IReportLauncherService
 {
     public static final String URL_BO_SQLPAGE = "#";
     public static final String URL_FO_SQLPAGE = " ";
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public List<PageDTO> getPage( AdminUser user )
     {
@@ -56,6 +64,7 @@ public class MockReportLauncher implements IReportLauncherService
         pagedto.setValue( "Value Mock 1" );
         listPageDTO.add( pagedto );
 
+        pagedto = new PageDTO(  );
         pagedto.setName( "Report Mock 2" );
         pagedto.setValue( "Value Mock 2" );
         listPageDTO.add( pagedto );
@@ -63,12 +72,18 @@ public class MockReportLauncher implements IReportLauncherService
         return listPageDTO;
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public String getBOUrl(  )
     {
         return URL_BO_SQLPAGE;
     }
 
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public String getFOUrl(  )
     {

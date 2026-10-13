@@ -39,11 +39,27 @@ import fr.paris.lutece.portal.business.user.AdminUser;
 import java.util.List;
 
 
+/**
+ * Provides the pages a report can launch
+ */
 public interface IReportLauncherService
 {
+    /**
+     * Returns the pages a user can choose
+     * @param user The admin user
+     * @return The pages
+     */
     public List<PageDTO> getPage( AdminUser user );
 
+    /**
+     * Returns the back office URL prefix of a page
+     * @return The back office URL prefix
+     */
     public String getBOUrl(  );
 
+    /**
+     * Returns the front office URL prefix of a page
+     * @return The front office URL prefix
+     */
     public String getFOUrl(  );
 }

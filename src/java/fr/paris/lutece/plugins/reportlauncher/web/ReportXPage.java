@@ -38,38 +38,50 @@ import fr.paris.lutece.plugns.reportlauncher.service.ReportLauncherService;
 import fr.paris.lutece.portal.util.mvc.commons.annotations.View;
 import fr.paris.lutece.portal.util.mvc.xpage.MVCApplication;
 import fr.paris.lutece.portal.util.mvc.xpage.annotations.Controller;
+import fr.paris.lutece.portal.web.cdi.mvc.Models;
 import fr.paris.lutece.portal.web.xpages.XPage;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 /**
- * This class provides the user interface to manage Report xpages ( manage, create, modify, remove )
+ * This class provides the front office list of the reports
  */
-@Controller( xpageName = "report", pageTitleI18nKey = "reportlauncher.xpage.report.pageTitle", pagePathI18nKey = "reportlauncher.xpage.report.pagePathLabel" )
+@RequestScoped
+@Named( "reportlauncher.xpage.report" )
+@Controller( xpageName = "report", pageTitleI18nKey = "reportlauncher.xpage.report.pageTitle", pagePathI18nKey = "reportlauncher.xpage.report.pagePathLabel", securityTokenEnabled = true )
 public class ReportXPage extends MVCApplication
 {
+    private static final long serialVersionUID = 1L;
+
     // Templates
     private static final String TEMPLATE_MANAGE_REPORTS = "/skin/plugins/reportlauncher/manage_reports.html";
 
     // Markers
     private static final String MARK_REPORT_LIST = "report_list";
-    private static final String PARAMETER_URL = "url";
+    private static final String MARK_URL = "url";
 
     // Views
     private static final String VIEW_MANAGE_REPORTS = "manageReports";
+
+    @Inject
     private ReportLauncherService _pageService;
 
+    /**
+     * Returns the list of the reports
+     * @param request The Http request
+     * @param model The model
+     * @return The page
+     */
     @View( value = VIEW_MANAGE_REPORTS, defaultView = true )
-    public XPage getManageReports( HttpServletRequest request )
+    public XPage getManageReports( HttpServletRequest request, Models model )
     {
-        Map<String, Object> model = getModel(  );
-        model.put( MARK_REPORT_LIST, ReportHome.getReportsList(  ) );
-        _pageService = ( _pageService != null ) ? _pageService : ReportLauncherService.instance(  );
-        model.put( PARAMETER_URL, _pageService.getFOUrl(  ) );
+        model.put( MARK_REPORT_LIST, ReportHome.getReportsList( ) );
+        model.put( MARK_URL, _pageService.getFOUrl( ) );
 
-        return getXPage( TEMPLATE_MANAGE_REPORTS, request.getLocale(  ), model );
+        return getXPage( TEMPLATE_MANAGE_REPORTS, getLocale( request ), model );
     }
 }

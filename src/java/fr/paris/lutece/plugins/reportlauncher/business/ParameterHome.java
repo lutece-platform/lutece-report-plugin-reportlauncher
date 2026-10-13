@@ -35,7 +35,8 @@ package fr.paris.lutece.plugins.reportlauncher.business;
 
 import fr.paris.lutece.portal.service.plugin.Plugin;
 import fr.paris.lutece.portal.service.plugin.PluginService;
-import fr.paris.lutece.portal.service.spring.SpringContextService;
+
+import jakarta.enterprise.inject.spi.CDI;
 
 import java.util.Collection;
 
@@ -46,7 +47,7 @@ import java.util.Collection;
 public final class ParameterHome
 {
     // Static variable pointed at the DAO instance
-    private static IParameterDAO _dao = SpringContextService.getBean( "reportlauncher.parameterDAO" );
+    private static IParameterDAO _dao = CDI.current( ).select( IParameterDAO.class ).get( );
     private static Plugin _plugin = PluginService.getPlugin( "reportlauncher" );
 
     /**
@@ -87,6 +88,15 @@ public final class ParameterHome
     public static void remove( int nKey )
     {
         _dao.delete( nKey, _plugin );
+    }
+
+    /**
+     * Remove the parameters of a report
+     * @param nIdReport The report Id
+     */
+    public static void removeByIdReport( int nIdReport )
+    {
+        _dao.deleteByIdReport( nIdReport, _plugin );
     }
 
     ///////////////////////////////////////////////////////////////////////////

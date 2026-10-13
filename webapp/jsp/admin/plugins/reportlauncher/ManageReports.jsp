@@ -1,9 +1,9 @@
-<jsp:useBean id="managereportlauncherReport" scope="session" class="fr.paris.lutece.plugins.reportlauncher.web.ReportJspBean" />
-<% String strContent = managereportlauncherReport.processController ( request , response ); %>
-
 <%@ page errorPage="../../ErrorPage.jsp" %>
+
+${ pageContext.setAttribute( 'strContent', reportlauncherReportJspBean.processController( pageContext.request , pageContext.response ) ) }
+
 <jsp:include page="../../AdminHeader.jsp" />
 
-<%= strContent %>
+${ pageContext.getAttribute( 'strContent' ) }
 
 <%@ include file="../../AdminFooter.jsp" %>
